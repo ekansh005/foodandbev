@@ -96,7 +96,6 @@
                 "type": "sap.ui.model.resource.ResourceModel",
                 "uri": "i18n/ObjectPage/Products/i18n.properties"
             },
-            
             "": {
                 "dataSource": "mainService",
                 "preload": true,
@@ -111,7 +110,11 @@
             }
         },
         "extends": {
-            "extensions": {}
+            "extensions": {
+                "sap.ui.viewExtensions": {
+                    "sap.suite.ui.generic.template.ListReport.view.ListReport": {}
+                }
+            }
         },
         "contentDensities": {
             "compact": true,
@@ -140,15 +143,6 @@
                             "dateSettings": {
                                 "useDateRange": true
                             }
-                        }
-                    }
-                },
-                "pages": {
-                    "ObjectPage|Products": {
-                        "entitySet": "Products",
-                        "defaultLayoutTypeIfExternalNavigation": "MidColumnFullScreen",
-                        "component": {
-                            "name": "sap.suite.ui.generic.template.ObjectPage"
                         }
                     }
                 }
