@@ -1,0 +1,94 @@
+_schema-version: "3.2"
+ID: com-ekansh-foodandbev
+description: Food and beverages for serving on board
+version: 0.0.1
+modules:
+- name: com-ekansh-foodandbev-dest-content
+  type: com.sap.application.content
+  requires:
+  - name: com-ekansh-foodandbev-dest-srv
+    parameters:
+      content-target: true
+  - name: com-ekansh-foodandbev-repo-host
+    parameters:
+      service-key:
+        name: com-ekansh-foodandbev-repo-host-key
+  - name: com-ekansh-foodandbev-uaa
+    parameters:
+      service-key:
+        name: com-ekansh-foodandbev-uaa-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: com-ekansh-foodandbev_repo_host
+          ServiceInstanceName: com-ekansh-foodandbev-html5-srv
+          ServiceKeyName: com-ekansh-foodandbev-repo-host-key
+          sap.cloud.service: com-ekansh-foodandbev
+        - Authentication: OAuth2UserTokenExchange
+          Name: com-ekansh-foodandbev_uaa
+          ServiceInstanceName: com-ekansh-foodandbev-xsuaa-srv
+          ServiceKeyName: com-ekansh-foodandbev-uaa-key
+          sap.cloud.service: com-ekansh-foodandbev
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: com-ekansh-foodandbev-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: com-ekansh-foodandbev-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - comekanshfoodandbev.zip
+      name: comekanshfoodandbev
+      target-path: resources/
+- name: comekanshfoodandbev
+  type: html5
+  path: .
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: com-ekansh-foodandbev-dest-srv
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: com-ekansh-foodandbev-dest-srv
+    service-plan: lite
+- name: com-ekansh-foodandbev-uaa
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: com-ekansh-foodandbev-xsuaa-srv
+    service-plan: application
+- name: com-ekansh-foodandbev-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: com-ekansh-foodandbev-html5-srv
+    service-plan: app-host
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
